@@ -176,6 +176,30 @@ class Tree(Collection, Reversible):
         if self.root:
             yield from reversed(self.root)
 
+    @property
+    def first(self) -> Optional[Node]:
+        """
+        Return the lowest-key tree node, or None if tree is empty.
+        """
+        n: Optional[Node] = self.root
+        if not n:
+            return None
+        while n.left:
+            n = n.left
+        return n
+
+    @property
+    def last(self) -> Optional[Node]:
+        """
+        Return the highest-key tree node, or None if tree is empty.
+        """
+        n: Optional[Node] = self.root
+        if not n:
+            return None
+        while n.right:
+            n = n.right
+        return n
+
     @overload
     def __getitem__(self, key: slice) -> List[Node]:
         pass
@@ -184,15 +208,18 @@ class Tree(Collection, Reversible):
     def __getitem__(self, key: K) -> Node:
         pass
 
-    def __getitem__(self, key: Union[K, slice]) -> \
-            Union[Node, List[Node]]:
+    def __getitem__(self, key: Union[K, slice]) -> Union[Node, List[Node]]:
         if isinstance(key, slice):
             if key.step is not None:
                 raise NotImplementedError(
                     "Slice steps are not implemented"
                     )
-            begin = None if key.start is None else \
-                self.floor_and_ceil(key.start)[1]
+            begin = None
+            if key.start is not None:
+                _, begin = self.floor_and_ceil(key.start)
+                if begin is None:
+                    # Given key is bigger than any in tree.
+                    return []
             end = None if key.stop is None else \
                 self.floor_and_ceil(key.stop)[1]
             return [n for n in self._iter_slice(begin, end)]
@@ -241,7 +268,7 @@ class Tree(Collection, Reversible):
         """
         if start is None:
             # search for lowest-key node
-            start = min(self)
+            start = self.first
         # test again if there is actually a minimal node
         if start is not None:
             if stop is None:
