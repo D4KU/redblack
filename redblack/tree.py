@@ -19,32 +19,6 @@ from typing import (
     overload,
     )
 
-"""
-A classic (not left-leaning) Red-Black Tree implementation, supporting
-addition and deletion.
-
-Changes:
-* Line length 72 and other style guide stuff
-* Compare objects via 'is', keys and colors via '=='
-* Replaced recursion with iteration
-* Added access to tree nodes where appropriate
-    * Add and remove return added/removed nodes
-    * Iterators yield the nodes, not their values anymore
-* Removed 'contains' method because it has to loop
-* Renamed value attribute to key
-* Added __underscore__ methods for a better interface
-    * __getitem__ on tree replaced findNode
-    * __repr__ on tree prints its nodes' values
-    * __str__ on nodes prints children recursively
-    * __nonzero__ on nodes returns bool(self.key)
-* Added __slots__ for faster attribute access
-* Merged floor and ceil into one method
-* Used new f-string where appropriate
-* Replaced stuff like 'x == None' through 'not x'
-* Added static NODE attribute to override used Node type
-* ROTATIONS attribute is now static
-"""
-
 
 K = TypeVar('K')  # Key Type
 
@@ -342,22 +316,6 @@ class Tree(Collection, Reversible):
         are attributes that actually store information and are not just
         for creating a tree structure.
         """
-        # This was too slow
-        # Find all attributes of source that are not defined in Node.
-        # What remains are attributes added in subclasses or at runtime.
-        # But since we want to copy the key, re-add it.
-        # attrs = [a for a in dir(source) if not (
-        #             # remove everything in Node class
-        #             a in dir(Node)
-        #             # remove python-internals
-        #             or a.startswith('__')
-        #             # remove methods
-        #             or callable(getattr(source, a))
-        #         )] + ['key']
-
-        # for a in attrs:
-        #     setattr(target, a, getattr(source, a))
-
         target.key = source.key
 
     def _remove(self, node: Node) -> None:
